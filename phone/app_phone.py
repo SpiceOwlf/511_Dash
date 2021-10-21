@@ -62,9 +62,55 @@ app.layout = html.Div(
                         ),
                     ]
                 ),
+                html.Div(
+                    children=[
+                        html.Div(
+                            children="rating Range",
+                            className="menu-title"
+                            ),
+                        dcc.RangeSlider(
+                            id="rating-range",
+                            min=data.rating.min(),
+                            max=data.rating.max(),
+                            step = 0.5,
+                            value=[0,5],
+                            marks={
+                                1:'1',
+                                2:'2',
+                                3:'3',
+                                4:'4',
+                                5:'5',
+                                6:'6',
+                            }
+                        ),
+                    ]
+                ),
+                html.Div(
+                    children=[
+                        html.Div(
+                            children="price Range",
+                            className="menu-title"
+                            ),
+                        dcc.RangeSlider(
+                            id="price-range",
+                            min=data.price.min(),
+                            max=data.price.max(),
+                            step = 1,
+                            value=[0,100],
+                            marks={
+                                1:'1',
+                                100:'100',
+                                500:'500',
+                                900:'900',
+                            },
+                            allowCross=False
+                        ),
+                    ]
+                ),
             ],
             className="menu",
         ),
+        
 
 
 
@@ -93,12 +139,18 @@ app.layout = html.Div(
     [Output("price-chart", "figure"), Output("volume-chart", "figure")],
     [
         Input("brand-filter", "value"),
+        Input("rating-range","value"),
+        Input("price-range","value"),
     ],
 )
 
-def update_charts(brand):
+def update_charts(brand,rating_slider, price_slider):
     mask = (
         (data.brand == brand)
+        &(data.rating >= rating_slider[0])
+        &(data.rating <= rating_slider[1])
+        &(data.price >= price_slider[0])
+        &(data.price <= price_slider[1])
     )
     filtered_data = data.loc[mask, :]
     price_chart_figure = {
