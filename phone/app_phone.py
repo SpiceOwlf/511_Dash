@@ -49,12 +49,12 @@ app.layout = html.Div(
             children=[
                 html.Div(
                     children=[
-                        html.Div(children="Region", className="menu-title"),
+                        html.Div(children="Brand", className="menu-title"),
                         dcc.Dropdown(
-                            id="region-filter",
+                            id="brand-filter",
                             options=[
-                                {"label": region, "value": region}
-                                for region in np.sort(data.brand.unique())
+                                {"label": brand, "value": brand}
+                                for brand in np.sort(data.brand.unique())
                             ],
                             value="Nokia",
                             clearable=False,
@@ -92,13 +92,13 @@ app.layout = html.Div(
 @app.callback(
     [Output("price-chart", "figure"), Output("volume-chart", "figure")],
     [
-        Input("region-filter", "value"),
+        Input("brand-filter", "value"),
     ],
 )
 
-def update_charts(region):
+def update_charts(brand):
     mask = (
-        (data.brand == region)
+        (data.brand == brand)
     )
     filtered_data = data.loc[mask, :]
     price_chart_figure = {
