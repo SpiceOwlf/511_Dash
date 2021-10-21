@@ -16,6 +16,7 @@ from dash.dependencies import Output, Input
 # asin,brand,title,url,image,rating,reviewUrl,totalReviews,price,originalPrice
 
 data = pd.read_csv("20191226-items.csv")
+data = data.query("brand == 'Motorola' or brand == 'Nokia'or brand == 'Samsung' or brand == 'Sony' or brand == 'Apple' or brand == 'Xiaomi' or brand == 'HUAWEI' or brand == 'OnePlus' or brand == 'Google' or brand == 'ASUS'")
 data.sort_values("title", inplace=True)
 
 external_stylesheets = [
@@ -47,59 +48,37 @@ app.layout = html.Div(
         html.Div(
             children=[
                 html.Div(
-                    children=dcc.Graph(
-                        id="price-chart",
-                        config={"displayModeBar": False},
-                        figure={
-                            "data": [
-                                {
-                                    "x": data["title"],
-                                    "y": data["price"],
-                                    "type": "lines",
-                                    "hovertemplate": "$%{y:.2f}"
-                                                     "<extra></extra>",
-                                },
+                    children=[
+                        html.Div(children="Region", className="menu-title"),
+                        dcc.Dropdown(
+                            id="region-filter",
+                            options=[
+                                {"label": region, "value": region}
+                                for region in np.sort(data.brand.unique())
                             ],
-                            "layout": {
-                                "title": {
-                                    "text": "Price of Phones based on title",
-                                    "x": 0.05,
-                                    "xanchor": "left",
-                                },
-                                "xaxis": {"fixedrange": True},
-                                "yaxis": {
-                                    "tickprefix": "$",
-                                    "fixedrange": True,
-                                },
-                                "colorway": ["#17B897"],
-                            },
-                        },
+                            value="Nokia",
+                            clearable=False,
+                            className="dropdown",
+                        ),
+                    ]
+                ),
+            ],
+            className="menu",
+        ),
+
+
+
+       html.Div(
+            children=[
+                html.Div(
+                    children=dcc.Graph(
+                        id="price-chart", config={"displayModeBar": False},
                     ),
                     className="card",
                 ),
                 html.Div(
                     children=dcc.Graph(
-                        id="volume-chart",
-                        config={"displayModeBar": False},
-                        figure={
-                            "data": [
-                                {
-                                    "x": data["title"],
-                                    "y": data["rating"],
-                                    "type": "lines",
-                                },
-                            ],
-                            "layout": {
-                                "title": {
-                                    "text": "Phone Rating",
-                                    "x": 0.05,
-                                    "xanchor": "left",
-                                },
-                                "xaxis": {"fixedrange": True},
-                                "yaxis": {"fixedrange": True},
-                                "colorway": ["#E12D39"],
-                            },
-                        },
+                        id="volume-chart", config={"displayModeBar": False},
                     ),
                     className="card",
                 ),
@@ -109,6 +88,56 @@ app.layout = html.Div(
     ]
 )
 
+
+@app.callback(
+    [Output("price-chart", "figure"), Output("volume-chart", "figure")],
+    [
+        Input("region-filter", "value"),
+    ],
+)
+
+def update_charts(region):
+    mask = (
+        (data.brand == region)
+    )
+    filtered_data = data.loc[mask, :]
+    price_chart_figure = {
+        "data": [
+            {
+                "x": filtered_data["title"],
+                "y": filtered_data["price"],
+                "type": "lines",
+                "hovertemplate": "$%{y:.2f}<extra></extra>",
+            },
+        ],
+        "layout": {
+            "title": {
+                "text": "Average Price of brand",
+                "x": 0.05,
+                "xanchor": "left",
+            },
+            "xaxis": {"fixedrange": True},
+            "yaxis": {"tickprefix": "$", "fixedrange": True},
+            "colorway": ["#17B897"],
+        },
+    }
+
+    volume_chart_figure = {
+        "data": [
+            {
+                "x": filtered_data["title"],
+                "y": filtered_data["rating"],
+                "type": "lines",
+            },
+        ],
+        "layout": {
+            "title": {"text": "rating of brand", "x": 0.05, "xanchor": "left"},
+            "xaxis": {"fixedrange": True},
+            "yaxis": {"fixedrange": True},
+            "colorway": ["#E12D39"],
+        },
+    }
+    return price_chart_figure, volume_chart_figure
 
 
 if __name__ == "__main__":
