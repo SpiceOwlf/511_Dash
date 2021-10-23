@@ -1,7 +1,7 @@
 # $ python3 -m venv venv
 # $ source venv/bin/activate
 # $ python -m pip install dash==1.13.3 pandas==1.0.5
-# python app.py
+# python3 app_phone.py
 # http://localhost:8050
 
 
@@ -18,6 +18,9 @@ from dash.dependencies import Output, Input
 data = pd.read_csv("20191226-items.csv")
 data = data.query("brand == 'Motorola' or brand == 'Nokia'or brand == 'Samsung' or brand == 'Sony' or brand == 'Apple' or brand == 'Xiaomi' or brand == 'HUAWEI' or brand == 'OnePlus' or brand == 'Google' or brand == 'ASUS'")
 data.sort_values("title", inplace=True)
+
+
+config = dict({'scrollZoom': True})
 
 external_stylesheets = [
     {
@@ -118,13 +121,16 @@ app.layout = html.Div(
             children=[
                 html.Div(
                     children=dcc.Graph(
-                        id="price-chart", config={"displayModeBar": False},
+                        id="price-chart", 
+                        config=config,
+
                     ),
                     className="card",
                 ),
                 html.Div(
                     children=dcc.Graph(
-                        id="volume-chart", config={"displayModeBar": False},
+                        id="volume-chart", 
+                        config=config,
                     ),
                     className="card",
                 ),
@@ -168,8 +174,6 @@ def update_charts(brand,rating_slider, price_slider):
                 "x": 0.05,
                 "xanchor": "left",
             },
-            "xaxis": {"fixedrange": True},
-            "yaxis": {"tickprefix": "$", "fixedrange": True},
             "colorway": ["#17B897"],
         },
     }
@@ -184,8 +188,6 @@ def update_charts(brand,rating_slider, price_slider):
         ],
         "layout": {
             "title": {"text": "rating of brand", "x": 0.05, "xanchor": "left"},
-            "xaxis": {"fixedrange": True},
-            "yaxis": {"fixedrange": True},
             "colorway": ["#E12D39"],
         },
     }
