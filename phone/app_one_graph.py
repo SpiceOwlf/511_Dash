@@ -1,4 +1,5 @@
 import dash
+import dash_table
 import dash_core_components as dcc
 import dash_html_components as html
 import plotly.express as px
@@ -141,6 +142,29 @@ app.layout = html.Div(
         ),
         html.Div(dcc.Graph(figure=fig2)),
         html.Div(dcc.Graph(figure=fig1)),
+        html.Br(),
+        html.Br(),
+        html.Div([
+            dash_table.DataTable(
+                id='datatable-interactivity',
+                columns=[
+                    {"name": i, "id": i, "deletable": True, "selectable": True} for i in df.columns],
+            data=df.to_dict('records'),
+            editable=True,
+            filter_action="native",
+            sort_action="native",
+            sort_mode="multi",
+            column_selectable="single",
+            row_selectable="multi",
+            row_deletable=True,
+            selected_columns=[],
+            selected_rows=[],
+            page_action="native",
+            page_current= 0,
+            page_size= 50,
+    ),
+    html.Div(id='datatable-interactivity-container')
+]),
     ]
 )
 
